@@ -124,5 +124,17 @@ window.logout=async()=>{await state.supabase?.auth.signOut();state.user=null;sta
 function loadLocal(){for(const k of ["prospects","clients","opportunities","tasks","events","sources","memories"]){try{const v=localStorage.getItem("lc_sales_"+k);if(v)state[k]=JSON.parse(v)}catch{}}}
 loadLocal();loadConfig();render();
 </script>
+
+<!-- LINK-MISSION-GATEWAY-INTEGRATION:v1 -->
+<style>
+#linkMissionGateway{position:fixed;left:10px;bottom:70px;z-index:9999;display:flex;gap:6px;flex-wrap:wrap}
+#linkMissionGateway a{font:700 12px Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:9px;padding:9px 12px;box-shadow:0 4px 14px rgba(0,0,0,.08)}
+#linkMissionGateway a.gateway{background:var(--accent);color:var(--accentText);border-color:var(--accent)}
+@media(max-width:600px){#linkMissionGateway{left:10px;bottom:62px;right:10px}}
+</style>
+<div id="linkMissionGateway" aria-label="LINK tools">
+<a href="/mission.html">🎯 Misión</a>
+<a class="gateway" href="/gateway.html">⌁ Gateway</a>
+</div>
 </body>
 </html>
