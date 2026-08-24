@@ -1,0 +1,20 @@
+{
+  "functions": {
+    "api/ai-gateway.js": { "memory": 512, "maxDuration": 60 },
+    "api/calendar-gateway.js": { "memory": 512, "maxDuration": 30 },
+    "api/config.js": { "memory": 256, "maxDuration": 10 },
+    "api/mcp.js": { "memory": 512, "maxDuration": 30 },
+    "api/sse.js": { "memory": 256, "maxDuration": 10 },
+    "api/oauth-server.js": { "memory": 256, "maxDuration": 10 },
+    "api/oauth-register.js": { "memory": 256, "maxDuration": 10 },
+    "api/oauth-authorize.js": { "memory": 256, "maxDuration": 10 },
+    "api/oauth-token.js": { "memory": 256, "maxDuration": 10 }
+  },
+  "rewrites": [
+    { "source": "/.well-known/oauth-authorization-server", "destination": "/api/oauth-server" },
+    { "source": "/oauth/register", "destination": "/api/oauth-register" },
+    { "source": "/oauth/authorize", "destination": "/api/oauth-authorize" },
+    { "source": "/oauth/token", "destination": "/api/oauth-token" },
+    { "source": "/sse", "destination": "/api/sse" }
+  ]
+}
