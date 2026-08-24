@@ -7,9 +7,8 @@ function verify(code,secret){
   if(Date.now()>data.exp) throw new Error("invalid_grant");
   return data;
 }
-function pkce(verifier){
-  return crypto.createHash("sha256").update(String(verifier||"")).digest("base64url");
-}
+function pkce(verifier){return crypto.createHash("sha256").update(String(verifier||"")).digest("base64url")}
+function accessToken(secret){return `link.${sign(`access:${secret}`,secret)}`}
 export default function handler(req,res){
   if(req.method!=="POST") return res.status(405).json({error:"invalid_request"});
   try{
@@ -18,8 +17,7 @@ export default function handler(req,res){
     if(b.client_secret && b.client_secret!==secret) throw new Error("invalid_client");
     const data=verify(b.code,secret);
     if(data.code_challenge && pkce(b.code_verifier)!==data.code_challenge) throw new Error("invalid_grant");
-    const token=process.env.MCP_ACCESS_TOKEN;
-    if(!token) throw new Error("server_not_configured");
+    const token=process.env.MCP_ACCESS_TOKEN||accessToken(secret);
     res.status(200).json({access_token:token,token_type:"Bearer",expires_in:86400,scope:"link_control"});
-  }catch(e){res.status(e.message==="server_not_configured"?500:400).json({error:e.message||"invalid_grant"});}
+  }catch(e){res.status(400).json({error:e.message||"invalid_grant"});}
 }
