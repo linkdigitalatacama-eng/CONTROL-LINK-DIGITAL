@@ -1,11 +1,11 @@
 {
   "name": "link-control-sales-os",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vercel dev",
-    "build": "mkdir -p public && cp index.html mission.html gateway.html app-shell.html public/ && echo static-build"
+    "build": "mkdir -p public && cp index.html mission.html gateway.html app-shell.html ecosystem-bridge.js public/ && node scripts/inject-ecosystem.mjs && echo static-build"
   },
   "dependencies": {}
 }
