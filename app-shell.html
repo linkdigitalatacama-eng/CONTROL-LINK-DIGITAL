@@ -6,7 +6,7 @@
     if(!r.ok) throw new Error('No se pudo cargar Sales OS ('+r.status+')');
     let html=await r.text();
     const addon='<script src="/mission-link.js?v=1"><\\/script>';
-    if(!html.includes('/mission-link.js')) html=html.replace(/<\\/body>/i,addon+'</body>');
+    if(!html.includes('/mission-link.js')) html=html.replace('</body>',addon+'</body>');
     document.open(); document.write(html); document.close();
   }catch(e){document.getElementById('boot').textContent='LINK CONTROL no pudo iniciar: '+e.message;}
 })();
