@@ -16,6 +16,7 @@
     "api/intelligence.js": { "memory": 1024, "maxDuration": 60 }
   },
   "rewrites": [
+    { "source": "/", "destination": "/app-shell.html" },
     { "source": "/.well-known/oauth-authorization-server", "destination": "/api/oauth-server" },
     { "source": "/oauth/register", "destination": "/api/oauth-register" },
     { "source": "/oauth/authorize", "destination": "/api/oauth-authorize" },
