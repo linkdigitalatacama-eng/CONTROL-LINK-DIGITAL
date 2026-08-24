@@ -13,8 +13,7 @@
     "api/oauth-token.js": { "memory": 256, "maxDuration": 10 },
     "api/prospect-hunter.js": { "memory": 512, "maxDuration": 60 },
     "api/preview-factory.js": { "memory": 512, "maxDuration": 60 },
-    "api/intelligence-ingest.js": { "memory": 1024, "maxDuration": 60 },
-    "api/intelligence-retrieve.js": { "memory": 1024, "maxDuration": 60 }
+    "api/intelligence.js": { "memory": 1024, "maxDuration": 60 }
   },
   "rewrites": [
     { "source": "/.well-known/oauth-authorization-server", "destination": "/api/oauth-server" },
