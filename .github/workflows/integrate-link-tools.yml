@@ -1,0 +1,48 @@
+name: Integrate LINK Mission and Gateway
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inject visible Mission and Gateway links
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          marker = '<!-- LINK-MISSION-GATEWAY-INTEGRATION:v1 -->'
+          if marker in s:
+              raise SystemExit(0)
+          block = '''
+          <!-- LINK-MISSION-GATEWAY-INTEGRATION:v1 -->
+          <style>
+          #linkMissionGateway{position:fixed;left:10px;bottom:70px;z-index:9999;display:flex;gap:6px;flex-wrap:wrap}
+          #linkMissionGateway a{font:700 12px Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:9px;padding:9px 12px;box-shadow:0 4px 14px rgba(0,0,0,.08)}
+          #linkMissionGateway a.gateway{background:var(--accent);color:var(--accentText);border-color:var(--accent)}
+          @media(max-width:600px){#linkMissionGateway{left:10px;bottom:62px;right:10px}}
+          </style>
+          <div id="linkMissionGateway" aria-label="LINK tools">
+          <a href="/mission.html">🎯 Misión</a>
+          <a class="gateway" href="/gateway.html">⌁ Gateway</a>
+          </div>
+          '''
+          if '</body>' not in s:
+              raise SystemExit('index.html has no closing body tag')
+          p.write_text(s.replace('</body>', block + '</body>', 1))
+          PY
+      - name: Commit integration
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git diff --cached --quiet || git commit -m 'fix: visibly integrate Mission and Gateway into Sales OS'
+          git push
