@@ -9,6 +9,7 @@ export default function handler(req,res){
     ai:{
       provider:process.env.DEFAULT_AI_PROVIDER||"openrouter",
       model:process.env.OPENROUTER_MODEL||"openai/gpt-5.5",
+      configured:Boolean(process.env.OPENROUTER_API_KEY),
       gateway:"/api/ai-gateway"
     },
     calendar:{gateway:"/api/calendar-gateway"},
