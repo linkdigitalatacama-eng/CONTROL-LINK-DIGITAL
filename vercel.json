@@ -1,6 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "outputDirectory": "public",
   "functions": {
     "api/ai-gateway.js": { "memory": 512, "maxDuration": 60 },
     "api/calendar-gateway.js": { "memory": 512, "maxDuration": 30 },
