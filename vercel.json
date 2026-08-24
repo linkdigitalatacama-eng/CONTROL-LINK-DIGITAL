@@ -14,9 +14,6 @@
     "api/preview-factory.js": { "memory": 512, "maxDuration": 60 },
     "api/intelligence.js": { "memory": 1024, "maxDuration": 60 }
   },
-  "redirects": [
-    { "source": "/", "destination": "/app-shell.html", "permanent": false }
-  ],
   "rewrites": [
     { "source": "/.well-known/oauth-authorization-server", "destination": "/api/oauth-server" },
     { "source": "/oauth/register", "destination": "/api/oauth-register" },
