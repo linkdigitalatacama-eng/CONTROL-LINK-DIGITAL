@@ -17,6 +17,7 @@
     const nav=document.getElementById('nav'); if(!nav||nav.dataset.ecosystem==='1') return;
     nav.dataset.ecosystem='1';
     const add=(label,icon,handler,cls='')=>{const b=document.createElement('button');b.className=cls;b.innerHTML=`<i>${icon}</i><span>${label}</span>`;b.addEventListener('click',handler);nav.appendChild(b);};
+    add('✦ Primer contacto','＋',()=>location.href='/intake.html?source=sales-os');
     add('🎯 Misión','◎',()=>location.href='/mission.html');
     add('⌁ Gateway','↗',()=>location.href='/gateway.html','gateway-nav');
     add('Ecosistema','◈',openEcosystem);
@@ -31,8 +32,8 @@
     const m=document.getElementById('modal'),b=document.getElementById('modalBackdrop');if(!m||!b)return;
     m.innerHTML=`<div class="modal-head"><div><p class="eyebrow">LINK ECOSYSTEM</p><h2>Todo conectado.</h2><p class="muted">Estado real de Sales OS, Supabase, Gateway, Misiones e IA.</p></div><button class="close" onclick="closeModal()">×</button></div><div id="ecosystemLive" class="grid3"><div class="empty">Leyendo Supabase…</div></div><div style="height:10px"></div><section class="panel" style="background:var(--card2)"><p class="eyebrow">IA GATEWAY</p><div id="aiGatewayStatus" class="muted">Comprobando OpenRouter…</div><div class="actions" style="margin-top:10px"><button class="btn primary" onclick="location.href='/api/ai-gateway'">Estado API</button><button class="btn" onclick="location.href='/gateway.html'">Abrir Gateway</button></div></section>`;
     m.classList.add('open');b.classList.add('open');
-    const [prospects,opportunities,clients,tasks,events,gateway,missions]=await Promise.all(['prospects','opportunities','clients','tasks','calendar_events','link_gateway_connections','client_missions'].map(count));
-    document.getElementById('ecosystemLive').innerHTML=[['Prospectos',prospects],['Oportunidades',opportunities],['Clientes',clients],['Acciones',tasks],['Calendario',events],['Gateway',gateway],['Misiones',missions]].map(([l,v])=>`<section class="panel metric"><p class="eyebrow">${l}</p><strong>${v}</strong><span>${cfg.user?'Supabase':'inicia sesión para datos'}</span></section>`).join('');
+    const [prospects,opportunities,clients,tasks,events,gateway,missions,intakes]=await Promise.all(['prospects','opportunities','clients','tasks','calendar_events','link_gateway_connections','client_missions','client_intakes'].map(count));
+    document.getElementById('ecosystemLive').innerHTML=[['Primeros contactos',intakes],['Prospectos',prospects],['Oportunidades',opportunities],['Clientes',clients],['Acciones',tasks],['Calendario',events],['Gateway',gateway],['Misiones',missions]].map(([l,v])=>`<section class="panel metric"><p class="eyebrow">${l}</p><strong>${v}</strong><span>${cfg.user?'Supabase':'inicia sesión para datos'}</span></section>`).join('');
     try{const r=await fetch('/api/ai-gateway',{cache:'no-store'}),d=await r.json(),p=d.providers?.openrouter;document.getElementById('aiGatewayStatus').innerHTML=p?.configured?`<span class="badge">✓ OPENROUTER CONFIGURADO</span> · ${esc(p.defaultModel)}`:`<span class="badge">⚠ OPENROUTER SIN API KEY</span> · falta OPENROUTER_API_KEY en Vercel`;}catch{document.getElementById('aiGatewayStatus').textContent='No se pudo consultar el AI Gateway';}
   }
   function wireGlobalClicks(){
