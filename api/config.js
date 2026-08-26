@@ -13,7 +13,7 @@ export default async function handler(req,res){
         const stage=String(body.stage||'').slice(0,80);
         if(!sessionId||!event)return res.status(400).json({error:"Faltan datos de misión"});
         const payload=body.payload&&typeof body.payload==='object'?body.payload:{};
-        const allowed={session_id:sessionId,event,stage,prospect_id:body.prospect_id?String(body.prospect_id).slice(0,120):null,client_id:body.client_id?String(body.client_id).slice(0,120):null,payload};
+        const allowed={client_id:body.client_id||null,mission_id:body.mission_id||null,event_type:event,payload:{session_id:sessionId,stage,prospect_id:body.prospect_id||null,...payload}};
         const headers={apikey:supabaseKey,'Content-Type':'application/json',Prefer:'return=representation'};
         if(!supabaseKey.startsWith('sb_publishable_'))headers.Authorization=`Bearer ${supabaseKey}`;
         const r=await fetch(`${supabaseUrl.replace(/\/$/,'')}/rest/v1/mission_events`,{method:'POST',headers,body:JSON.stringify(allowed)});
