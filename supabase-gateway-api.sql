@@ -15,10 +15,29 @@ create table if not exists public.gateway_api_keys (
   revoked_at timestamptz
 );
 
+create table if not exists public.gateway_events (
+  id uuid primary key default gen_random_uuid(),
+  api_key_id uuid references public.gateway_api_keys(id) on delete set null,
+  owner_id uuid references auth.users(id) on delete set null,
+  event_id text,
+  event_type text not null,
+  source text not null default 'api',
+  external_id text,
+  idempotency_key text,
+  payload jsonb not null default '{}'::jsonb,
+  received_at timestamptz not null default now()
+);
+
+create unique index if not exists gateway_events_idempotency_idx
+  on public.gateway_events(api_key_id, idempotency_key)
+  where idempotency_key is not null;
+create index if not exists gateway_events_owner_idx on public.gateway_events(owner_id, received_at desc);
+create index if not exists gateway_events_type_idx on public.gateway_events(event_type, received_at desc);
 create index if not exists gateway_api_keys_owner_idx on public.gateway_api_keys(owner_id);
 create index if not exists gateway_api_keys_prefix_idx on public.gateway_api_keys(key_prefix);
 
 alter table public.gateway_api_keys enable row level security;
+alter table public.gateway_events enable row level security;
 
 do $$ begin
   create policy gateway_api_keys_owner_select on public.gateway_api_keys
@@ -33,6 +52,11 @@ exception when duplicate_object then null; end $$;
 do $$ begin
   create policy gateway_api_keys_owner_update on public.gateway_api_keys
     for update to authenticated using (owner_id = auth.uid()) with check (owner_id = auth.uid());
+exception when duplicate_object then null; end $$;
+
+do $$ begin
+  create policy gateway_events_owner_select on public.gateway_events
+    for select to authenticated using (owner_id = auth.uid());
 exception when duplicate_object then null; end $$;
 
 -- Solo devuelve metadatos mínimos. Nunca expone el hash ni la clave original.
