@@ -21,9 +21,13 @@ export default async function handler(req,res){
         content_status:String(body.content_status||'').slice(0,100),brand_status:String(body.brand_status||'').slice(0,100),main_problem:String(body.main_problem||'').slice(0,4000),desired_result:String(body.desired_result||'').slice(0,4000),timeline:String(body.timeline).slice(0,100),budget_band:String(body.budget_band||'').slice(0,100),notes:String(body.notes||'').slice(0,4000),answers:body,
         metadata:{user_agent:req.headers['user-agent']||'',referer:req.headers.referer||'',received_via:'LINK intake'}
       };
-      const r=await fetch(`${supabaseUrl.replace(/\/$/,'')}/rest/v1/client_intakes`,{method:'POST',headers:{apikey:supabaseKey,Authorization:`Bearer ${supabaseKey}`,'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify(allowed)});
+      const headers={apikey:supabaseKey,'Content-Type':'application/json',Prefer:'return=representation'};
+      // Modern Supabase publishable keys belong in `apikey`. Sending the
+      // publishable key as a Bearer JWT causes PostgREST to return 401.
+      if(!supabaseKey.startsWith('sb_publishable_'))headers.Authorization=`Bearer ${supabaseKey}`;
+      const r=await fetch(`${supabaseUrl.replace(/\/$/,'')}/rest/v1/client_intakes`,{method:'POST',headers,body:JSON.stringify(allowed)});
       const text=await r.text();
-      if(!r.ok)return res.status(502).json({error:'Supabase rechazó el registro',detail:text.slice(0,500)});
+      if(!r.ok)return res.status(502).json({error:'Supabase rechazó el registro',detail:text.slice(0,500),status:r.status});
       const rows=JSON.parse(text);return res.status(201).json({ok:true,intake_id:rows?.[0]?.id||null});
     }catch(error){return res.status(500).json({error:error?.message||'Error interno'});}
   }
