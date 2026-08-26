@@ -52,6 +52,53 @@ create table if not exists public.client_document_chunks (
   created_at timestamptz default now()
 );
 
+-- Primer contacto público: guarda el diagnóstico inicial completo del negocio.
+create table if not exists public.client_intakes (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  status text not null default 'new',
+  source text,
+  name text not null,
+  email text,
+  phone text,
+  business_name text,
+  city text,
+  industry text,
+  website text,
+  instagram text,
+  whatsapp text,
+  business_stage text,
+  offer text,
+  ideal_customer text,
+  sales_channels text[] default '{}',
+  monthly_sales_band text,
+  average_ticket_band text,
+  current_tools text[] default '{}',
+  website_goal text,
+  website_type text,
+  website_pages text[] default '{}',
+  website_features text[] default '{}',
+  content_status text,
+  brand_status text,
+  main_problem text,
+  desired_result text,
+  timeline text,
+  budget_band text,
+  notes text,
+  answers jsonb not null default '{}'::jsonb,
+  metadata jsonb not null default '{}'::jsonb
+);
+
+alter table public.client_intakes enable row level security;
+do $$ begin
+  create policy "public can create client intake" on public.client_intakes
+    for insert to anon, authenticated with check (true);
+exception when duplicate_object then null; end $$;
+
+create index if not exists client_intakes_created_at_idx on public.client_intakes(created_at desc);
+create index if not exists client_intakes_email_idx on public.client_intakes(lower(email));
+
 create index if not exists previews_prospect_idx on public.previews(prospect_id);
 create index if not exists documents_client_idx on public.client_documents(client_id);
 create index if not exists chunks_client_idx on public.client_document_chunks(client_id);
