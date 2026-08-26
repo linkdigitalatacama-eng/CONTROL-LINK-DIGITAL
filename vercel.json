@@ -21,6 +21,7 @@
     { "source": "/oauth/token", "destination": "/api/oauth-token" },
     { "source": "/sse", "destination": "/api/sse" },
     { "source": "/api/intake", "destination": "/api/config" },
+    { "source": "/api/gateway", "destination": "/api/config" },
     { "source": "/api/intelligence-ingest", "destination": "/api/intelligence" },
     { "source": "/api/intelligence-retrieve", "destination": "/api/intelligence" }
   ]
