@@ -6,6 +6,21 @@ export default async function handler(req,res){
   if(req.method==="POST"){
     try{
       const body=typeof req.body==='string'?JSON.parse(req.body):(req.body||{});
+      if(body.action==='mission_event'){
+        if(!supabaseUrl||!supabaseKey)return res.status(500).json({error:"Supabase no está configurado en Vercel"});
+        const sessionId=String(body.session_id||'').slice(0,100);
+        const event=String(body.event||'').slice(0,80);
+        const stage=String(body.stage||'').slice(0,80);
+        if(!sessionId||!event)return res.status(400).json({error:"Faltan datos de misión"});
+        const payload=body.payload&&typeof body.payload==='object'?body.payload:{};
+        const allowed={session_id:sessionId,event,stage,prospect_id:body.prospect_id?String(body.prospect_id).slice(0,120):null,client_id:body.client_id?String(body.client_id).slice(0,120):null,payload};
+        const headers={apikey:supabaseKey,'Content-Type':'application/json',Prefer:'return=representation'};
+        if(!supabaseKey.startsWith('sb_publishable_'))headers.Authorization=`Bearer ${supabaseKey}`;
+        const r=await fetch(`${supabaseUrl.replace(/\/$/,'')}/rest/v1/mission_events`,{method:'POST',headers,body:JSON.stringify(allowed)});
+        const text=await r.text();
+        if(!r.ok)return res.status(502).json({error:'Supabase rechazó el evento de misión',detail:text.slice(0,500),status:r.status});
+        const rows=JSON.parse(text);return res.status(201).json({ok:true,event_id:rows?.[0]?.id||null});
+      }
       if(body.website_url_hidden)return res.status(400).json({error:"Invalid submission"});
       const required=['name','business_name','email','industry','business_stage','offer','ideal_customer','website','website_goal','website_type','timeline','consent'];
       for(const key of required){
@@ -22,8 +37,6 @@ export default async function handler(req,res){
         metadata:{user_agent:req.headers['user-agent']||'',referer:req.headers.referer||'',received_via:'LINK intake'}
       };
       const headers={apikey:supabaseKey,'Content-Type':'application/json',Prefer:'return=representation'};
-      // Modern Supabase publishable keys belong in `apikey`. Sending the
-      // publishable key as a Bearer JWT causes PostgREST to return 401.
       if(!supabaseKey.startsWith('sb_publishable_'))headers.Authorization=`Bearer ${supabaseKey}`;
       const r=await fetch(`${supabaseUrl.replace(/\/$/,'')}/rest/v1/client_intakes`,{method:'POST',headers,body:JSON.stringify(allowed)});
       const text=await r.text();
