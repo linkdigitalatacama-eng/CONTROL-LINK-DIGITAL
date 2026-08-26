@@ -3,7 +3,6 @@
 create extension if not exists pgcrypto;
 create extension if not exists vector;
 
--- IDs para inserciones server-side/MCP sin romper el esquema v1.
 alter table public.prospects alter column id set default gen_random_uuid()::text;
 alter table public.clients alter column id set default gen_random_uuid()::text;
 alter table public.opportunities alter column id set default gen_random_uuid()::text;
@@ -52,7 +51,6 @@ create table if not exists public.client_document_chunks (
   created_at timestamptz default now()
 );
 
--- Primer contacto público: guarda el diagnóstico inicial completo del negocio.
 create table if not exists public.client_intakes (
   id uuid primary key default gen_random_uuid(),
   created_at timestamptz not null default now(),
@@ -90,14 +88,36 @@ create table if not exists public.client_intakes (
   metadata jsonb not null default '{}'::jsonb
 );
 
+-- Bitácora de la misión: cada acción importante queda registrada en Supabase.
+-- Es append-only para el acceso público: el visitante puede registrar su avance,
+-- pero no puede leer ni modificar el historial de otras sesiones.
+create table if not exists public.mission_events (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  session_id text not null,
+  event text not null,
+  stage text,
+  prospect_id text,
+  client_id text,
+  payload jsonb not null default '{}'::jsonb
+);
+
 alter table public.client_intakes enable row level security;
 do $$ begin
   create policy "public can create client intake" on public.client_intakes
     for insert to anon, authenticated with check (true);
 exception when duplicate_object then null; end $$;
 
+alter table public.mission_events enable row level security;
+do $$ begin
+  create policy "public can create mission event" on public.mission_events
+    for insert to anon, authenticated with check (true);
+exception when duplicate_object then null; end $$;
+
 create index if not exists client_intakes_created_at_idx on public.client_intakes(created_at desc);
 create index if not exists client_intakes_email_idx on public.client_intakes(lower(email));
+create index if not exists mission_events_session_idx on public.mission_events(session_id,created_at desc);
+create index if not exists mission_events_entity_idx on public.mission_events(prospect_id,client_id,created_at desc);
 
 create index if not exists previews_prospect_idx on public.previews(prospect_id);
 create index if not exists documents_client_idx on public.client_documents(client_id);
@@ -149,7 +169,6 @@ as $$
   limit least(match_count,50);
 $$;
 
--- Índices operativos para el Hunter/Pipeline.
 create index if not exists prospects_city_idx on public.prospects(city);
 create index if not exists prospects_website_idx on public.prospects(website);
 create index if not exists prospects_next_action_idx on public.prospects(next_action_at);
